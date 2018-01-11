@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE something SYSTEM "something.dtd"
+[
+   <!ENTITY entity1 "something">
+   <!ENTITY entity2 "test">
+]>
+<xml>
+  <lvl1 attribute='&entity1;'>something</lvl1>
+  blah blah
+  <lvl1 attribute='value'></lvl1>
+  <other>
+    <lvl2>
+      something
+    </lvl2>
+  </other>
+</xml>
