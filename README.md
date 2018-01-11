@@ -2,23 +2,22 @@
 
 xmlparser is an fast XML parser written entirely in Lua 5.
 
-​
-# Installation
 
+# Installation
 
 ```bash
 luarocks install xml2lua
 ```
 
 Or run the examples directly.
-​
 
-# API
+
+# API
 
 - `xmlparser.parse(xmlstring)`
 - `xmlparser.parse_file(filename)`
 
-## Document structure
+## Document structure
 
 ```lua
 document = {
