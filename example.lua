@@ -31,6 +31,6 @@ end
 require('xmlparser')
 
 local args={...}
-local doc = xmlparser.parse_file(args[1] or 'example.xml')
+local doc = xmlparser.parseFile(args[1] or 'example.xml')
 
 printdoc(doc)
