@@ -33,8 +33,8 @@ eq('{entities:{},children:{1:{attrs:{name:v>a,},children:{},tag:a,},2:{text:> b,
 eq('{entities:{},children:{1:{attrs:{},children:{1:{text:b,},},tag:a,},},}',
    '<a> b </a>')
 eq('{entities:{1:{name:e1,value:fdd>d,},2:{name:e2,value:a,},},children:{1:{attrs:{},children:{1:{text:b,},},tag:a,},},}',
-   '<!DOCTYPE l SYSTEM "l.dtd" <!ENTITY e1   "fdd>d">  <!ENTITY e2 "a"> ]><a>b</a>')
+   '<!DOCTYPE l SYSTEM "l.dtd"[ <!ENTITY e1   "fdd>d">  <!ENTITY e2 "a"> ]><a>b</a>')
 eq('{entities:{1:{name:e1,value:fdd>d,},2:{name:e2,value:a,},},children:{1:{attrs:{},children:{1:{text:fdd>ddsa;,},},tag:a,},},tentities:{tab:\t,e2:a,gt:>,quot:",amp:&,e1:fdd>d,apos:\',nbsp: ,lt:<,},}',
-   '<!DOCTYPE l SYSTEM "l.dtd" <!ENTITY e1   "fdd>d">  <!ENTITY e2 "a"> ]><a>&e1;ds&e2;;</a>', true)
+   '<!DOCTYPE l SYSTEM "l.dtd" [<!ENTITY e1   "fdd>d">  <!ENTITY e2 "a"> ]><a>&e1;ds&e2;;</a>', true)
 
 os.exit(r)

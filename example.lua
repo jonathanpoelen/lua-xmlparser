@@ -27,10 +27,20 @@ function printdoc(doc)
   end
 end
 
-
-require('xmlparser')
-
 local args={...}
-local doc = xmlparser.parseFile(args[1] or 'example.xml')
+local parseFile
+
+if not args[2] then
+  require('xmlparser')
+  parseFile = xmlparser.parseFile
+else
+  require('xmlparser2')
+  parseFile = xmlparser2.parseFile -- xmlparser2.treeParser.parseFile
+end
+
+local doc, err = parseFile(args[1] or 'example.xml')
 
 printdoc(doc)
+if err then
+  print(err)
+end

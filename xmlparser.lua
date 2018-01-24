@@ -27,7 +27,7 @@ function parse(s, evalEntities)
       s:sub(1, pos):gsub('<!ENTITY%s+([_%w]+)%s+(.)(.-)%2', function(name, q, entity)
         entities[#entities+1] = {name=name, value=entity}
       end)
-      tentities = createEntitiesTable(entities)
+      tentities = createEntityTable(entities)
       s = replaceEntities(s:sub(pos), tentities)
     end
   end
@@ -95,7 +95,7 @@ function parseFile(filename, evalEntities)
   return f and parse(f:read'*a'), err
 end
 
-function defaultEntitiesTable()
+function defaultEntityTable()
   return { quot='"', apos='\'', lt='<', gt='>', amp='&', tab='\t', nbsp=' ', }
 end
 
@@ -103,8 +103,8 @@ function replaceEntities(s, entities)
   return s:gsub('&([^;]+);', entities)
 end
 
-function createEntitiesTable(docEntities, resultEntities)
-  entities = resultEntities or defaultEntitiesTable()
+function createEntityTable(docEntities, resultEntities)
+  entities = resultEntities or defaultEntityTable()
   for _,e in pairs(docEntities) do
     e.value = replaceEntities(e.value, entities)
     entities[e.name] = e.value
