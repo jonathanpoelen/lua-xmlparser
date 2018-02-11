@@ -19,8 +19,8 @@ module "xmllpegparser"
 local Space = S' \n\t'
 local Space0 = Space^0
 local Space1 = Space^1
-local  String = (S'\'' *  (('\\\'' + (1-S'\''))^0) * S'\'') + (S'"' *  (('\\"' + (1-S'"'))^0) * S'"')
-local CString = (S'\'' * C(('\\\'' + (1-S'\''))^0) * S'\'') + (S'"' * C(('\\"' + (1-S'"'))^0) * S'"')
+local  String = (S"'" *   (1-S"'")^0  * S"'") + (S'"' *   (1-S'"')^0  * S'"')
+local CString = (S"'" * C((1-S"'")^0) * S"'") + (S'"' * C((1-S'"')^0) * S'"')
 local  Name = ((R('az','AZ') + S'_') * (R('az','AZ') + S'_-:' + R'09')^0)
 local CName = C(Name)
 local  Attr =   ( Name * Space0 * '=' * Space0 *  String )
