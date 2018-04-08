@@ -232,5 +232,5 @@ function parse(s, visitorOrEvalEntities, ...)
 end
 
 function parseFile(filename, visitorOrEvalEntities, ...)
-  return getParser(visitorOrEvalEntities).parseFile(s, ...)
+  return getParser(visitorOrEvalEntities).parseFile(filename, ...)
 end
