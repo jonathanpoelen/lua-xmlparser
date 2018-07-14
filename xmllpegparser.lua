@@ -45,7 +45,7 @@ local mkparser = function(pf)
     parse     = pf,
     parseFile = function(filename, ...)
       local f, err = io.open(filename)
-      if f then return p.parser(f:read'*a', ...) end
+      if f then return p.parse(f:read'*a', ...) end
       return f, err
     end,
   }, mt)

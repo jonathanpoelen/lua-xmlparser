@@ -28,6 +28,16 @@ function eq(s, sxml, replaceEntities)
   end
 end
 
+function feq(s, filename)
+  local tdoc, err = xmlparser.parseFile(filename)
+  local doc = str(tdoc)
+  if err or s ~= doc then
+    print('[FAILURE]\n  ' .. s .. '\n  ==\n  ' .. doc .. '\n with file', filename)
+    if err then print('  ' .. err .. '/' .. filename) end
+    r = r + 1
+  end
+end
+
 
 require('xmlparser')
 
@@ -43,5 +53,8 @@ eq('{children:{1:{attrs:{},children:{1:{text:b,},},tag:a,},},entities:{1:{name:e
    '<!DOCTYPE l SYSTEM "l.dtd"[ <!ENTITY e1   "fdd>d">  <!ENTITY e2 "a"> ]><a>b</a>')
 eq('{children:{1:{attrs:{},children:{1:{text:fdd>ddsa;,},},tag:a,},},entities:{1:{name:e1,value:fdd>d,},2:{name:e2,value:a,},},tentities:{amp:&,apos:\',e1:fdd>d,e2:a,gt:>,lt:<,nbsp: ,quot:",tab:\t,},}',
    '<!DOCTYPE l SYSTEM "l.dtd" [<!ENTITY e1   "fdd>d">  <!ENTITY e2 "a"> ]><a>&e1;ds&e2;;</a>', true)
+
+feq('{children:{1:{attrs:{},children:{1:{attrs:{attribute:&entity1;,},children:{1:{text:something,},},tag:lvl1,},2:{text:blah blah,},3:{attrs:{attribute:value,},children:{},tag:lvl1,},4:{attrs:{},children:{1:{attrs:{},children:{1:{text:something,},},tag:lvl2,},},tag:other,},},tag:xml,},},entities:{1:{name:entity1,value:something,},2:{name:entity2,value:test,},},}',
+   'example.xml')
 
 os.exit(r)

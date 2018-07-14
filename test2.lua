@@ -30,6 +30,15 @@ function eq(s, sxml, replaceEntities)
   end
 end
 
+function feq(s, filename)
+  local tdoc, e = xmllpegparser.parseFile(filename)
+  local doc = str(tdoc) 
+  if err or s ~= doc then
+    print('[FAILURE]\n  ' .. s .. '\n  ==\n  ' .. doc .. '\n with file', filename)
+    if err then print('  ' .. err .. '/' .. filename) end
+    r = r + 1
+  end
+end
 
 require('xmllpegparser')
 
@@ -45,5 +54,8 @@ eq('{children:{1:{attrs:{},children:{1:{parent:a,pos:75,text:b,},},parent:nil,po
    '<!DOCTYPE l SYSTEM "l.dtd"[ <!ENTITY e1   "fdd>d">  <!ENTITY e2 "a"> ]><a>b</a>')
 eq('{children:{1:{attrs:{},children:{1:{parent:a,pos:75,text:fdd>ddsa;,},},parent:nil,pos:72,tag:a,},},entities:{1:{name:e1,pos:29,value:fdd>d,},2:{name:e2,pos:53,value:a,},},preprocessor:{},tentities:{amp:&,apos:\',e1:fdd>d,e2:a,gt:>,lt:<,nbsp: ,quot:",tab:\t,},}',
    '<!DOCTYPE l SYSTEM "l.dtd" [<!ENTITY e1   "fdd>d">  <!ENTITY e2 "a"> ]><a>&e1;ds&e2;;</a>', true)
+
+feq('{children:{1:{attrs:{},children:{1:{attrs:{attribute:&entity1;,},children:{1:{parent:lvl1,pos:185,text:something,},},parent:xml,pos:157,tag:lvl1,},2:{parent:xml,pos:204,text:blah blah,},3:{attrs:{attribute:value,},children:{},parent:xml,pos:216,tag:lvl1,},4:{attrs:{},children:{1:{attrs:{},children:{1:{parent:lvl2,pos:275,text:something,},},parent:other,pos:262,tag:lvl2,},},parent:xml,pos:250,tag:other,},},parent:nil,pos:149,tag:xml,},},entities:{1:{name:entity1,pos:88,value:something,},2:{name:entity2,pos:121,value:test,},},preprocessor:{1:{attrs:{encoding:UTF-8,version:1.0,},pos:1,tag:xml,},},}',
+   'example.xml')
 
 os.exit(r)
