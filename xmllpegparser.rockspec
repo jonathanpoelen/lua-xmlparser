@@ -1,4 +1,4 @@
-package = "xmlparser"
+package = "xmllpegparser"
 version = "1.0"
 source = {
   url = "git://github.com/jonathanpoelen/xmlparser",
@@ -20,6 +20,6 @@ dependencies = {
 build = {
   type = "builtin",
   modules = {
-    xmlparser2 = "xmlparser2.lua"
+    xmllpegparser = "xmllpegparser.lua"
   }
 }

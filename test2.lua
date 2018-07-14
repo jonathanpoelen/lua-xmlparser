@@ -1,8 +1,15 @@
 #!/usr/bin/env lua
 
 function str(t)
-  local s = '{'
-  for i, e in pairs(t) do
+  local orderedIndex = {}
+  for i in pairs(t) do
+    table.insert(orderedIndex, i)
+  end
+  table.sort(orderedIndex)
+
+  local s, e = '{'
+  for k, i in pairs(orderedIndex) do
+    e = t[i]
     if type(e) == 'table' then
       e = (i ~= 'parent') and str(e) or e.tag
     end
@@ -24,19 +31,19 @@ function eq(s, sxml, replaceEntities)
 end
 
 
-require('xmlparser2')
+require('xmllpegparser')
 
-eq('{preprocessor:{},entities:{},children:{1:{attrs:{},parent:nil,pos:1,children:{},tag:a,},2:{attrs:{},parent:nil,pos:8,children:{1:{parent:b,text:ad,pos:11,},},tag:b,},3:{attrs:{},parent:nil,pos:17,children:{},tag:c,},4:{attrs:{},parent:nil,pos:21,children:{1:{attrs:{},parent:d,pos:24,children:{1:{parent:e,text:ds,pos:27,},},tag:e,},},tag:d,},5:{attrs:{},parent:nil,pos:37,children:{1:{parent:f,text:a,pos:40,},2:{attrs:{},parent:f,pos:41,children:{},tag:g,},3:{parent:f,text:b,pos:45,},},tag:f,},},}',
+eq('{children:{1:{attrs:{},children:{},parent:nil,pos:1,tag:a,},2:{attrs:{},children:{1:{parent:b,pos:11,text:ad,},},parent:nil,pos:8,tag:b,},3:{attrs:{},children:{},parent:nil,pos:17,tag:c,},4:{attrs:{},children:{1:{attrs:{},children:{1:{parent:e,pos:27,text:ds,},},parent:d,pos:24,tag:e,},},parent:nil,pos:21,tag:d,},5:{attrs:{},children:{1:{parent:f,pos:40,text:a,},2:{attrs:{},children:{},parent:f,pos:41,tag:g,},3:{parent:f,pos:45,text:b,},},parent:nil,pos:37,tag:f,},},entities:{},preprocessor:{},}',
    '<a></a><b>ad</b><c/><d><e>ds</e></d><f>a<g/>b</f>')
-eq('{preprocessor:{},entities:{},children:{1:{attrs:{name:value,},parent:nil,pos:1,children:{},tag:a,},2:{attrs:{name:value,},parent:nil,pos:18,children:{},tag:b,},3:{attrs:{name:value,},parent:nil,pos:41,children:{},tag:c,},4:{attrs:{name:value,name2:value2,},parent:nil,pos:60,children:{},tag:d,},},}',
+eq('{children:{1:{attrs:{name:value,},children:{},parent:nil,pos:1,tag:a,},2:{attrs:{name:value,},children:{},parent:nil,pos:18,tag:b,},3:{attrs:{name:value,},children:{},parent:nil,pos:41,tag:c,},4:{attrs:{name:value,name2:value2,},children:{},parent:nil,pos:60,tag:d,},},entities:{},preprocessor:{},}',
    '<a name="value"/><b   name  =  "value"/><c name="value"  /><d name="value"  name2="value2"/>')
-eq('{preprocessor:{},entities:{},children:{1:{attrs:{name:v>a,},parent:nil,pos:1,children:{},tag:a,},2:{parent:nil,text:> b,pos:16,},3:{attrs:{name:>,},parent:nil,pos:19,children:{1:{parent:c,text:d,pos:31,},},tag:c,},4:{attrs:{name:a,},parent:nil,pos:36,children:{1:{parent:e,text:>f,pos:48,},},tag:e,},},}',
+eq('{children:{1:{attrs:{name:v>a,},children:{},parent:nil,pos:1,tag:a,},2:{parent:nil,pos:16,text:> b,},3:{attrs:{name:>,},children:{1:{parent:c,pos:31,text:d,},},parent:nil,pos:19,tag:c,},4:{attrs:{name:a,},children:{1:{parent:e,pos:48,text:>f,},},parent:nil,pos:36,tag:e,},},entities:{},preprocessor:{},}',
    '<a name="v>a"/>> b<c name=">">d</c><e name="a">>f</e>')
-eq('{preprocessor:{},entities:{},children:{1:{attrs:{},parent:nil,pos:1,children:{1:{parent:a,text:b,pos:5,},},tag:a,},},}',
+eq('{children:{1:{attrs:{},children:{1:{parent:a,pos:5,text:b,},},parent:nil,pos:1,tag:a,},},entities:{},preprocessor:{},}',
    '<a> b </a>')
-eq('{preprocessor:{},entities:{1:{value:fdd>d,name:e1,pos:29,},2:{value:a,name:e2,pos:53,},},children:{1:{attrs:{},parent:nil,pos:72,children:{1:{parent:a,text:b,pos:75,},},tag:a,},},}',
+eq('{children:{1:{attrs:{},children:{1:{parent:a,pos:75,text:b,},},parent:nil,pos:72,tag:a,},},entities:{1:{name:e1,pos:29,value:fdd>d,},2:{name:e2,pos:53,value:a,},},preprocessor:{},}',
    '<!DOCTYPE l SYSTEM "l.dtd"[ <!ENTITY e1   "fdd>d">  <!ENTITY e2 "a"> ]><a>b</a>')
-eq('{tentities:{tab:\t,e2:a,gt:>,quot:",amp:&,e1:fdd>d,apos:\',nbsp: ,lt:<,},preprocessor:{},entities:{1:{value:fdd>d,name:e1,pos:29,},2:{value:a,name:e2,pos:53,},},children:{1:{attrs:{},parent:nil,pos:72,children:{1:{parent:a,text:fdd>ddsa;,pos:75,},},tag:a,},},}',
+eq('{children:{1:{attrs:{},children:{1:{parent:a,pos:75,text:fdd>ddsa;,},},parent:nil,pos:72,tag:a,},},entities:{1:{name:e1,pos:29,value:fdd>d,},2:{name:e2,pos:53,value:a,},},preprocessor:{},tentities:{amp:&,apos:\',e1:fdd>d,e2:a,gt:>,lt:<,nbsp: ,quot:",tab:\t,},}',
    '<!DOCTYPE l SYSTEM "l.dtd" [<!ENTITY e1   "fdd>d">  <!ENTITY e2 "a"> ]><a>&e1;ds&e2;;</a>', true)
 
 os.exit(r)

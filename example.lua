@@ -34,8 +34,8 @@ if not args[2] then
   require('xmlparser')
   parseFile = xmlparser.parseFile
 else
-  require('xmlparser2')
-  parseFile = xmlparser2.parseFile -- xmlparser2.treeParser.parseFile
+  require('xmllpegparser')
+  parseFile = xmllpegparser.parseFile -- xmlparser2.treeParser.parseFile
 end
 
 local doc, err = parseFile(args[1] or 'example.xml')

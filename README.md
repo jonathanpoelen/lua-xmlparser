@@ -2,17 +2,17 @@
 
 `xmlparser` is an fast XML parser written entirely in Lua 5.
 
-`xmlparser2` is an implementation with a visitor and using [`lpeg`](http://www.inf.puc-rio.br/~roberto/lpeg/lpeg.html) for even more speed and features.
+`xmllpegparser` is an implementation with a visitor and using [`lpeg`](http://www.inf.puc-rio.br/~roberto/lpeg/lpeg.html) for even more speed and features.
 
 
 # Installation
 
 ```bash
 luarocks install xmlparser
-luarocks install xmlparser2
+luarocks install xmllpegparser
 ```
 
-Or run the examples directly (`./example.lua [xmlfile [x]]`. `x` = something for enable xmlparser2).
+Or run the examples directly (`./example.lua [xmlfile [x]]`. `x` = something for enable xmllpegparser).
 
 
 # xmlparser API
@@ -49,18 +49,18 @@ document = {
 - If several attributes have the same name (allowed by the standard), only the last is kept.
 
 
-# xmlparser2 API
+# xmllpegparser API
 
-- `xmlparser2.parse(xmlstring[, visitorOrsubEntities[, visitorInitArgs...]])`: Return a tuple `document table, string error` (see below).
+- `xmllpegparser.parse(xmlstring[, visitorOrsubEntities[, visitorInitArgs...]])`: Return a tuple `document table, string error` (see below).
 If `subEntities` is `true`, the entities are replaced and a `tentity` member is added to the document `table`.
-- `xmlparser2.parseFile(filename[, visitorOrsubEntities[, visitorInitArgs...]])`: Return a tuple `document table, error file or error document`.
-- `xmlparser2.defaultEntitiyTable()`: Return the default entity table (` { quot='"', ... }`).
-- `xmlparser2.createEntityTable(docEntities[, resultEntities])`: Create an entity table from the document entity table. Return `resultEntities`.
-- `xmlparser2.replaceEntities(s, entityTable)`: Return a `string`.
-- `xmlparser2.parser(visitor)`: return a parser (`{parse=function(xmlstring, visitorInitArgs...), parseFile=function(filename, visitorInitArgs...), __call=function(xmlstring, visitorInitArgs...)}`)
-- `xmlparser2.lazyParser(visitorCreator)`
-- `xmlparser2.treeParser`: the defauld parser used by `xmlparser2.parse(s, false)`
-- `xmlparser2.treeParserWithReplacedEntities`: the defauld parser used by `xmlparser2.parse(s, true)`
+- `xmllpegparser.parseFile(filename[, visitorOrsubEntities[, visitorInitArgs...]])`: Return a tuple `document table, error file or error document`.
+- `xmllpegparser.defaultEntitiyTable()`: Return the default entity table (` { quot='"', ... }`).
+- `xmllpegparser.createEntityTable(docEntities[, resultEntities])`: Create an entity table from the document entity table. Return `resultEntities`.
+- `xmllpegparser.replaceEntities(s, entityTable)`: Return a `string`.
+- `xmllpegparser.parser(visitor)`: return a parser (`{parse=function(xmlstring, visitorInitArgs...), parseFile=function(filename, visitorInitArgs...), __call=function(xmlstring, visitorInitArgs...)}`)
+- `xmllpegparser.lazyParser(visitorCreator)`
+- `xmllpegparser.treeParser`: the defauld parser used by `xmllpegparser.parse(s, false)`
+- `xmllpegparser.treeParserWithReplacedEntities`: the defauld parser used by `xmllpegparser.parse(s, true)`
 
 ## Document structure (default parser)
 
