@@ -1,8 +1,8 @@
 package = "xmllpegparser"
-version = "1.0"
+version = "2.0-3"
 source = {
-  url = "git://github.com/jonathanpoelen/xmlparser",
-  tag = "v1.0"
+  url = "git://github.com/jonathanpoelen/lua-xmlparser",
+  tag = "v2.0.3"
 }
 description = {
   summary = "An Fast XML Parser written with lpeg.",
@@ -10,12 +10,12 @@ description = {
     Enables parsing an XML file and converting it to a Lua table,
     which can be handled directly by your application.
   ]],
-  homepage = "https://github.com/jonathanpoelen/xmlparser",
+  homepage = "https://github.com/jonathanpoelen/lua-xmlparser",
   license = "MIT"
 }
 dependencies = {
   "lua >= 5.1",
-  "lpeg >= 1.0" 
+  "lpeg >= 1.0"
 }
 build = {
   type = "builtin",

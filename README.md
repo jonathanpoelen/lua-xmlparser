@@ -8,8 +8,13 @@
 # Installation
 
 ```bash
-luarocks install xmlparser
-luarocks install xmllpegparser
+luarocks install --local https://raw.githubusercontent.com/jonathanpoelen/lua-xmlparser/master/xmlparser-2.0-3.rockspec
+luarocks install --local https://raw.githubusercontent.com/jonathanpoelen/lua-xmlparser/master/xmllpegparser-2.0-3.rockspec
+
+# or in your directory
+
+luarocks make --local xmlparser-2.0-3.rockspec
+luarocks make --local xmllpegparser-2.0-3.rockspec
 ```
 
 Or run the examples directly (`./example.lua [xmlfile [x]]`. `x` = something for enable xmllpegparser).
@@ -117,4 +122,4 @@ Each member is optionnal.
 [MIT license](LICENSE)
 
 
-<!-- https://github.com/jonathanpoelen/xmlparser -->
+<!-- https://github.com/jonathanpoelen/lua-xmlparser -->
