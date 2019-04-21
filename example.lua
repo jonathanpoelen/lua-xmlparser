@@ -28,17 +28,11 @@ function printdoc(doc)
 end
 
 local args={...}
-local parseFile
+local parseFile = require(args[2] and 'xmllpegparser' or 'xmlparser').parseFile
+local filename = args[1] and #args[1] > 0 and args[1] or 'example.xml'
+local replaceEntities = args[3] and #args[3] > 0
 
-if not args[2] then
-  require('xmlparser')
-  parseFile = xmlparser.parseFile
-else
-  require('xmllpegparser')
-  parseFile = xmllpegparser.parseFile -- xmlparser2.treeParser.parseFile
-end
-
-local doc, err = parseFile(args[1] or 'example.xml')
+local doc, err = parseFile(filename, replaceEntities)
 
 printdoc(doc)
 if err then

@@ -7,7 +7,7 @@
 <xml>
   <lvl1 attribute='&entity1;'>something</lvl1>
   blah blah
-  <lvl1 attribute='value'></lvl1>
+  <lvl1 attribute="value"></lvl1>
   <other>
     <lvl2>
       something

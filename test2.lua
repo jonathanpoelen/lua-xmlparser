@@ -20,24 +20,23 @@ end
 
 r = 0
 
-function eq(s, sxml, replaceEntities)
-  local tdoc, err = xmllpegparser.parse(sxml, replaceEntities)
+function check(tdoc, err, s, input, ierr)
   local doc = str(tdoc)
   if err or s ~= doc then
-    print('[FAILURE]\n  ' .. s .. '\n  ==\n  ' .. doc .. '\n with', sxml)
-    if err then print('  ' .. err .. '/' .. #sxml) end
+    print('[FAILURE]\n  ' .. s .. '\n  ==\n  ' .. doc .. '\n with', input)
+    if err then print('  ' .. err .. '/' .. ierr) end
     r = r + 1
   end
 end
 
+function eq(s, sxml, replaceEntities)
+  local tdoc, err = xmllpegparser.parse(sxml, replaceEntities)
+  check(tdoc, err, s, sxml, #sxml)
+end
+
 function feq(s, filename)
-  local tdoc, e = xmllpegparser.parseFile(filename)
-  local doc = str(tdoc) 
-  if err or s ~= doc then
-    print('[FAILURE]\n  ' .. s .. '\n  ==\n  ' .. doc .. '\n with file', filename)
-    if err then print('  ' .. err .. '/' .. filename) end
-    r = r + 1
-  end
+  local tdoc, err = xmllpegparser.parseFile(filename)
+  check(tdoc, err, s, 'file ' .. filename, filename)
 end
 
 require('xmllpegparser')
@@ -57,5 +56,16 @@ eq('{children:{1:{attrs:{},children:{1:{parent:a,pos:75,text:fdd>ddsa;,},},paren
 
 feq('{children:{1:{attrs:{},children:{1:{attrs:{attribute:&entity1;,},children:{1:{parent:lvl1,pos:185,text:something,},},parent:xml,pos:157,tag:lvl1,},2:{parent:xml,pos:204,text:blah blah,},3:{attrs:{attribute:value,},children:{},parent:xml,pos:216,tag:lvl1,},4:{attrs:{},children:{1:{attrs:{},children:{1:{parent:lvl2,pos:275,text:something,},},parent:other,pos:262,tag:lvl2,},},parent:xml,pos:250,tag:other,},},parent:nil,pos:149,tag:xml,},},entities:{1:{name:entity1,pos:88,value:something,},2:{name:entity2,pos:121,value:test,},},preprocessor:{1:{attrs:{encoding:UTF-8,version:1.0,},pos:1,tag:xml,},},}',
    'example.xml')
+
+parser = xmllpegparser.parser(xmllpegparser.mkVisitor(true, {x='xxx'}))
+function peq(s, sxml)
+  local tdoc, err = parser(sxml)
+  check(tdoc.children[1], err, s, sxml, #sxml)
+end
+
+peq('{attrs:{},children:{1:{parent:x,pos:4,text:xxx/&y;,},},parent:nil,pos:1,tag:x,}',
+    '<x>&x;/&y;</x>')
+peq('{attrs:{},children:{1:{parent:x,pos:51,text:xxx/yyy,},},parent:nil,pos:48,tag:x,}',
+    '<!DOCTYPE l SYSTEM "l.dtd" [<!ENTITY y "yyy">]><x>&x;/&y;</x>')
 
 os.exit(r)

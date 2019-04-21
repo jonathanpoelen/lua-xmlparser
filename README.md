@@ -17,7 +17,19 @@ luarocks make --local xmlparser-2.0-3.rockspec
 luarocks make --local xmllpegparser-2.0-3.rockspec
 ```
 
-Or run the examples directly (`./example.lua [xmlfile [x]]`. `x` = something for enable xmllpegparser).
+# Test
+
+Run `./example.lua`.
+
+```
+./example.lua [xmlfile [enablelpeg [replaceentities]]]`
+
+`enablelpeg` = anything, only to enable xmllpegparser.
+`replaceentities` = anything, only to enable replacement of entities.
+```
+
+- `./example.lua file.xml '' x`: xmlparser with replacement of entities
+- `./example.lua file.xml x`: xmllpegparser
 
 
 # xmlparser API
@@ -61,8 +73,10 @@ If `subEntities` is `true`, the entities are replaced and a `tentity` member is 
 - `xmllpegparser.parseFile(filename[, visitorOrsubEntities[, visitorInitArgs...]])`: Return a tuple `document table, error file or error document`.
 - `xmllpegparser.defaultEntitiyTable()`: Return the default entity table (` { quot='"', ... }`).
 - `xmllpegparser.createEntityTable(docEntities[, resultEntities])`: Create an entity table from the document entity table. Return `resultEntities`.
-- `xmllpegparser.replaceEntities(s, entityTable)`: Return a `string`.
+- `xmllpegparser.mkReplaceEntities(tableTable_or_func)`: Return a lpeg replace entities context: `str = ctx:match(str)`.
+- `xmllpegparser.replaceEntities(s, entityTable_or_func)`: Return a `string`.
 - `xmllpegparser.parser(visitor)`: return a parser (`{parse=function(xmlstring, visitorInitArgs...), parseFile=function(filename, visitorInitArgs...), __call=function(xmlstring, visitorInitArgs...)}`)
+- `xmllpegparser.mkVisitor(evalEntities:bool, defaultEntities:table|function|nil)`: if defaultEntities = nil and evalEntities = true then `defaultEntities=defaultEntityTable`.
 - `xmllpegparser.lazyParser(visitorCreator)`
 - `xmllpegparser.treeParser`: the defauld parser used by `xmllpegparser.parse(s, false)`
 - `xmllpegparser.treeParserWithReplacedEntities`: the defauld parser used by `xmllpegparser.parse(s, true)`

@@ -11,7 +11,7 @@ local Cs = lpeg.Cs
 local P = lpeg.P
 local I = lpeg.Cp()
 
-local setmetatable, string, pairs, tostring, io = setmetatable, string, pairs, tostring, io
+local setmetatable, string, pairs, tostring, io, type = setmetatable, string, pairs, tostring, io, type
 -- local print = print
 
 module "xmllpegparser"
@@ -38,19 +38,6 @@ local accuAttr = function(a,k,v)
 end
 
 local mt = {__call = function(_, ...) return _.parse(...) end}
-
-local mkparser = function(pf)
-  local p
-  p = setmetatable({
-    parse     = pf,
-    parseFile = function(filename, ...)
-      local f, err = io.open(filename)
-      if f then return p.parse(f:read'*a', ...) end
-      return f, err
-    end,
-  }, mt)
-  return p
-end
 
 local _parser = function(v)
   local Comment = v.comment and CComment / v.comment or Comment
@@ -114,12 +101,31 @@ local _parser = function(v)
 end
 
 
+local mkparser = function(pf)
+  local p
+  p = setmetatable({
+    parse     = pf,
+    parseFile = function(filename, ...)
+      local f, err = io.open(filename)
+      if f then return p.parse(f:read'*a', ...) end
+      return f, err
+    end,
+  }, mt)
+  return p
+end
+
 function parser(v)
   return mkparser(_parser(v))
 end
 
 function defaultEntityTable()
   return { quot='"', apos='\'', lt='<', gt='>', amp='&', tab='\t', nbsp=' ', }
+end
+
+local DeclEntity = P'&' * C((1-P';')^1) * P';'
+
+function mkReplaceEntities(repl)
+  return Cs((DeclEntity / repl + 1)^0)
 end
 
 function replaceEntities(s, entities)
@@ -136,18 +142,27 @@ function createEntityTable(docEntities, resultEntities)
 end
 
 
-local mkTreeParser = function(evalEntities)
+function mkVisitor(evalEntities, defaultEntities)
   local elem, doc, SubEntity, accuattr, doctype, cdata, text
+  local mkDefaultEntities = defaultEntities and (
+    type(defaultEntities) == 'table' and function()
+      local t = {}
+      for k,e in pairs(defaultEntities) do
+        t[k] = e
+      end
+      return t
+    end
+    or defaultEntities
+  ) or defaultEntityTable
 
   if evalEntities then
-    SubEntity = Cs((P'&' * C((1-P';')^1) * P';' / defaultEntityTable() + 1)^0)
     accuattr = function(a,k,v)
       a[k] = SubEntity:match(v)
       return a
     end
     doctype = function(pos, name, cat, path)
-      doc.tentities = createEntityTable(doc.entities)
-      SubEntity = Cs((P'&' * C((1-P';')^1) * P';' / doc.tentities + 1)^0)
+      doc.tentities = createEntityTable(doc.entities, mkDefaultEntities())
+      SubEntity = mkReplaceEntities(doc.tentities)
     end
     cdata = function(pos, text)
       elem.children[#elem.children+1] = {pos=pos-9, parent=elem, text=SubEntity:match(text), cdata=true}
@@ -156,7 +171,7 @@ local mkTreeParser = function(evalEntities)
       elem.children[#elem.children+1] = {pos=pos, parent=elem, text=SubEntity:match(text)}
     end
   else
-    -- accuattr = accuAttr
+    -- accuattr = noop
     -- doctype = noop
     cdata = function(pos, text)
       elem.children[#elem.children+1] = {pos=pos-9, parent=elem, text=text, cdata=true}
@@ -176,6 +191,9 @@ local mkTreeParser = function(evalEntities)
       doc = {preprocessor={}, entities={}, document=elem}
       elem.parent = bad
       elem.bad.parent = elem.bad
+      if evalEntities then
+        SubEntity = mkReplaceEntities(mkDefaultEntities())
+      end
     end,
     finish=function(err)
       if doc.document ~= elem then
@@ -218,8 +236,8 @@ function lazyParser(visitorCreator)
   return p
 end
 
-treeParser = lazyParser(function() return mkTreeParser() end)
-treeParserWithReplacedEntities = lazyParser(function() return mkTreeParser(true) end)
+treeParser = lazyParser(function() return mkVisitor() end)
+treeParserWithReplacedEntities = lazyParser(function() return mkVisitor(true) end)
 
 local getParser = function(visitorOrEvalEntities)
   return (not visitorOrEvalEntities and treeParser) or
