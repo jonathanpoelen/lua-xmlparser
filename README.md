@@ -1,23 +1,36 @@
-# xmlparser
+# lua-xmlparser
 
 `xmlparser` is an fast XML parser written entirely in Lua 5.
 
 `xmllpegparser` is an implementation with a visitor and using [`lpeg`](http://www.inf.puc-rio.br/~roberto/lpeg) for even more speed and features.
 
+<!-- summary -->
+1. [Installation](#installation)
+2. [Test](#test)
+3. [xmlparser API](#xmlparser-api)
+    1. [Document structure](#document-structure)
+    2. [Limitations](#limitations)
+4. [xmllpegparser API](#xmllpegparser-api)
+    1. [Document structure (default parser)](#document-structure-default-parser)
+    2. [Visitor structure](#visitor-structure)
+    3. [Default parser limitations](#default-parser-limitations)
+5. [Licence](#licence)
+<!-- /summary -->
 
-# Installation
+
+## Installation
 
 ```bash
 luarocks install --local https://raw.githubusercontent.com/jonathanpoelen/lua-xmlparser/master/xmlparser-2.0-4.rockspec
 luarocks install --local https://raw.githubusercontent.com/jonathanpoelen/lua-xmlparser/master/xmllpegparser-2.0-4.rockspec
 
-# or in your directory
+# or in your local directory lua-xmlparser
 
 luarocks make --local xmlparser-2.0-4.rockspec
 luarocks make --local xmllpegparser-2.0-4.rockspec
 ```
 
-# Test
+## Test
 
 Run `./example.lua`.
 
@@ -32,7 +45,7 @@ Run `./example.lua`.
 - `./example.lua file.xml x`: xmllpegparser
 
 
-# xmlparser API
+## xmlparser API
 
 - `xmlparser.parse(xmlstring[, subEntities])`: Return a document `table` (see below).
 If `subEntities` is `true`, the entities are replaced and a `tentity` member is added to the document `table`.
@@ -41,7 +54,7 @@ If `subEntities` is `true`, the entities are replaced and a `tentity` member is 
 - `xmlparser.createEntityTable(docEntities[, resultEntities])`: Create an entity table from the document entity table. Return `resultEntities`.
 - `xmlparser.replaceEntities(s, entityTable)`: Return a `string`.
 
-## Document structure
+### Document structure
 
 ```lua
 document = {
@@ -55,7 +68,7 @@ document = {
 ```
 
 
-## Limitations
+### Limitations
 
 - Non-validating
 - No DTD support
@@ -66,7 +79,7 @@ document = {
 - If several attributes have the same name (allowed by the standard), only the last is kept.
 
 
-# xmllpegparser API
+## xmllpegparser API
 
 - `xmllpegparser.parse(xmlstring[, visitorOrsubEntities[, visitorInitArgs...]])`: Return a tuple `document table, string error` (see below).
 If `subEntities` is `true`, the entities are replaced and a `tentity` member is added to the document `table`.
@@ -81,7 +94,7 @@ If `subEntities` is `true`, the entities are replaced and a `tentity` member is 
 - `xmllpegparser.treeParser`: the defauld parser used by `xmllpegparser.parse(s, false)`
 - `xmllpegparser.treeParserWithReplacedEntities`: the defauld parser used by `xmllpegparser.parse(s, true)`
 
-## Document structure (default parser)
+### Document structure (default parser)
 
 ```lua
 -- pos member = index of string
@@ -98,7 +111,7 @@ document = {
 }
 ```
 
-## Visitor structure
+### Visitor structure
 
 Each member is optionnal.
 
@@ -122,7 +135,7 @@ Each member is optionnal.
 }
 ```
 
-## Default parser limitations
+### Default parser limitations
 
 - Non-validating
 - No DTD support
@@ -131,7 +144,7 @@ Each member is optionnal.
 - If several attributes have the same name (allowed by the standard), only the last is kept.
 
 
-# Licence
+## Licence
 
 [MIT license](LICENSE)
 

@@ -28,3 +28,4 @@ done
 git commit -vam "Version $NEW_STD_VERS"
 git tag "v$NEW_ROCK_VERS"
 git push --tags
+git push
