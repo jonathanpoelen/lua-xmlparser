@@ -2,7 +2,7 @@
 
 `xmlparser` is an fast XML parser written entirely in Lua 5.
 
-`xmllpegparser` is an implementation with a visitor and using [`lpeg`](http://www.inf.puc-rio.br/~roberto/lpeg/lpeg.html) for even more speed and features.
+`xmllpegparser` is an implementation with a visitor and using [`lpeg`](http://www.inf.puc-rio.br/~roberto/lpeg) for even more speed and features.
 
 
 # Installation
