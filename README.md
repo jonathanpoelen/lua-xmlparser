@@ -8,13 +8,13 @@
 # Installation
 
 ```bash
-luarocks install --local https://raw.githubusercontent.com/jonathanpoelen/lua-xmlparser/master/xmlparser-2.0-3.rockspec
-luarocks install --local https://raw.githubusercontent.com/jonathanpoelen/lua-xmlparser/master/xmllpegparser-2.0-3.rockspec
+luarocks install --local https://raw.githubusercontent.com/jonathanpoelen/lua-xmlparser/master/xmlparser-2.0-4.rockspec
+luarocks install --local https://raw.githubusercontent.com/jonathanpoelen/lua-xmlparser/master/xmllpegparser-2.0-4.rockspec
 
 # or in your directory
 
-luarocks make --local xmlparser-2.0-3.rockspec
-luarocks make --local xmllpegparser-2.0-3.rockspec
+luarocks make --local xmlparser-2.0-4.rockspec
+luarocks make --local xmllpegparser-2.0-4.rockspec
 ```
 
 # Test

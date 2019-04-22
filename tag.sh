@@ -19,9 +19,12 @@ sed "$SED_LUA_REPLACE" -i README.md
 
 for prefix in xmlparser xmllpegparser ; do
   NEWFILE="$prefix-$NEW_ROCK_VERS.rockspec"
-  mv "$prefix-$OLD_ROCK_VERS.rockspec" "$NEWFILE"
+  OLDFILE="$prefix-$OLD_ROCK_VERS.rockspec"
+  mv "$OLDFILE" "$NEWFILE"
   sed -i "$SED_LUA_REPLACE;$SED_VERSION_REPLACE" "$NEWFILE"
+  git add "$NEWFILE"
 done
 
-# git -am "Version $NEW_STD_VERS"
-# git tag "v$NEW_ROCK_VERS"
+git commit -vam "Version $NEW_STD_VERS"
+git tag "v$NEW_ROCK_VERS"
+git push --tags
