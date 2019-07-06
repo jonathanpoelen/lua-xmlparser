@@ -2,30 +2,25 @@
 
 set -e
 
-if [ $# -lt 3 ] ; then
-  echo "$0 major minor revision" >&2
+if [ $# -lt 4 ] ; then
+  echo "$0 old.rockspec major minor revision" >&2
   exit 1
 fi
 
-OLD_ROCK_VERS=$(ls -1 *.rockspec | sed 's/^[^-]*-//;s/\.rockspec$//;q')
-NEW_ROCK_VERS="$1.$2-$3"
-NEW_STD_VERS="$1.$2.$3"
+oldfile=$1
+name=${oldfile::-9}
+lib=${name/-*}
+old_rock_vers=${name#*-}
+new_rock_vers="$2.$3-$4"
+new_std_vers="$2.$3.$4"
+newfile="$lib-$new_rock_vers.rockspec"
 
-OLD_ROCK_VERS_REG="${OLD_ROCK_VERS//./\\.}"
-SED_LUA_REPLACE="s/$OLD_ROCK_VERS_REG/$NEW_ROCK_VERS/"
-SED_VERSION_REPLACE="s/v${OLD_ROCK_VERS_REG/-/\\.}/v$NEW_STD_VERS/"
+sed -i "s/$old_rock_vers/$new_rock_vers/;s/${old_rock_vers/-/\\.}/$new_std_vers/" "$oldfile"
+sed -i "s/${oldfile//./\\.}/$newfile/" README.md
+mv "$oldfile" "$newfile"
 
-sed "$SED_LUA_REPLACE" -i README.md
-
-for prefix in xmlparser xmllpegparser ; do
-  NEWFILE="$prefix-$NEW_ROCK_VERS.rockspec"
-  OLDFILE="$prefix-$OLD_ROCK_VERS.rockspec"
-  mv "$OLDFILE" "$NEWFILE"
-  sed -i "$SED_LUA_REPLACE;$SED_VERSION_REPLACE" "$NEWFILE"
-  git add "$NEWFILE"
-done
-
-git commit -vam "Version $NEW_STD_VERS"
-git tag "v$NEW_ROCK_VERS"
+git add "$oldfile" "$newfile" README.md
+git commit -vm "$lib version $new_std_vers"
+git tag "v$new_rock_vers"
 git push --tags
 git push
