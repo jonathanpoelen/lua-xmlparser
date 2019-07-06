@@ -27,10 +27,9 @@ function printdoc(doc)
   end
 end
 
-local args={...}
-local parseFile = require(args[2] and 'xmllpegparser' or 'xmlparser').parseFile
-local filename = args[1] and #args[1] > 0 and args[1] or 'example.xml'
-local replaceEntities = args[3] and #args[3] > 0
+local parseFile = require('xmlparser').parseFile
+local filename = arg[1] and #arg[1] > 0 and arg[1] or 'example.xml'
+local replaceEntities = arg[2] and #arg[2] > 0
 
 local doc, err = parseFile(filename, replaceEntities)
 
