@@ -1,8 +1,8 @@
 package = "xmlparser"
-version = "2.0-4"
+version = "2.0-5"
 source = {
   url = "git://github.com/jonathanpoelen/lua-xmlparser",
-  tag = "v2.0.4"
+  tag = "v2.0.5"
 }
 description = {
   summary = "An Fast XML Parser written entirely in Lua 5.",
