@@ -21,6 +21,6 @@ mv "$oldfile" "$newfile"
 
 git add "$oldfile" "$newfile" README.md
 git commit -vm "$lib version $new_std_vers"
-git tag "v$new_rock_vers"
+git tag "v$new_std_vers"
 git push --tags
 git push
