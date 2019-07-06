@@ -1,6 +1,9 @@
 #!/usr/bin/env lua
 
 function str(t)
+  if not t then
+    return ''
+  end
   local orderedIndex = {}
   for i in pairs(t) do
     table.insert(orderedIndex, i)
@@ -29,15 +32,27 @@ function check(tdoc, err, s, input, ierr)
   end
 end
 
-function eq(s, sxml, replaceEntities)
+function _eq(s, sxml, replaceEntities)
   local tdoc, err = xmllpegparser.parse(sxml, replaceEntities)
   check(tdoc, err, s, sxml, #sxml)
 end
 
-function feq(s, filename)
+function _feq(s, filename)
   local tdoc, err = xmllpegparser.parseFile(filename)
-  check(tdoc, err, s, 'file ' .. filename, filename)
+  check(tdoc, err, s, 'file ' .. filename, '???')
 end
+
+function mkEq(eq)
+  return function(s, ...)
+    eq(s, ...)
+    xmllpegparser.enableWithoutPosParser()
+    eq(s:gsub(',pos:%d+', ''), ...)
+    xmllpegparser.enableWithoutPosParser(false)
+  end
+end
+
+local eq, feq = mkEq(_eq), mkEq(_feq)
+
 
 require('xmllpegparser')
 
@@ -57,10 +72,14 @@ eq('{children:{1:{attrs:{},children:{1:{parent:a,pos:75,text:fdd>ddsa;,},},paren
 feq('{children:{1:{attrs:{},children:{1:{attrs:{attribute:&entity1;,},children:{1:{parent:lvl1,pos:185,text:something,},},parent:xml,pos:157,tag:lvl1,},2:{parent:xml,pos:204,text:blah blah,},3:{attrs:{attribute:value,},children:{},parent:xml,pos:216,tag:lvl1,},4:{attrs:{},children:{1:{attrs:{},children:{1:{parent:lvl2,pos:275,text:something,},},parent:other,pos:262,tag:lvl2,},},parent:xml,pos:250,tag:other,},},parent:nil,pos:149,tag:xml,},},entities:{1:{name:entity1,pos:88,value:something,},2:{name:entity2,pos:121,value:test,},},lastpos:315,preprocessor:{1:{attrs:{encoding:UTF-8,version:1.0,},pos:1,tag:xml,},},}',
    'example.xml')
 
-parser = xmllpegparser.parser(xmllpegparser.mkVisitor(true, {x='xxx'}))
+parser1 = xmllpegparser.parser(xmllpegparser.mkVisitor(true, {x='xxx'}))
+parser2 = xmllpegparser.parser(xmllpegparser.mkVisitor(true, {x='xxx'}, true))
 function peq(s, sxml)
-  local tdoc, err = parser(sxml)
+  local tdoc, err = parser1(sxml)
   check(tdoc.children[1], err, s, sxml, #sxml)
+
+  tdoc, err = parser2(sxml)
+  check(tdoc.children[1], err, s:gsub(',pos:%d+', ''), sxml, #sxml)
 end
 
 peq('{attrs:{},children:{1:{parent:x,pos:4,text:xxx/&y;,},},parent:nil,pos:1,tag:x,}',

@@ -89,10 +89,14 @@ If `subEntities` is `true`, the entities are replaced and a `tentity` member is 
 - `xmllpegparser.mkReplaceEntities(tableTable_or_func)`: Return a lpeg replace entities context: `str = ctx:match(str)`.
 - `xmllpegparser.replaceEntities(s, entityTable_or_func)`: Return a `string`.
 - `xmllpegparser.parser(visitor)`: return a parser (`{parse=function(xmlstring, visitorInitArgs...), parseFile=function(filename, visitorInitArgs...), __call=function(xmlstring, visitorInitArgs...)}`)
-- `xmllpegparser.mkVisitor(evalEntities:bool, defaultEntities:table|function|nil)`: if defaultEntities = nil and evalEntities = true then `defaultEntities=defaultEntityTable`.
+- `xmllpegparser.mkVisitor(evalEntities:bool, defaultEntities:table|function|nil, withoutPosition)`: `if not defaultEntities and evalEntities then defaultEntities = defaultEntityTable`. If `withoutPosition`, then `pos` parameter does not exist for the visitor functions except for `finish`.
 - `xmllpegparser.lazyParser(visitorCreator)`
-- `xmllpegparser.treeParser`: the defauld parser used by `xmllpegparser.parse(s, false)`
-- `xmllpegparser.treeParserWithReplacedEntities`: the defauld parser used by `xmllpegparser.parse(s, true)`
+- `xmllpegparser.treeParser`: the default parser used by `xmllpegparser.parse(s, false)`
+- `xmllpegparser.treeParserWithReplacedEntities`: the default parser used by `xmllpegparser.parse(s, true)`
+- `xmllpegparser.treeParserWithoutPos`: parser without `pos` parameter
+- `xmllpegparser.treeParserWithoutPosWithReplacedEntities`: parser without `pos` parameter
+- `xmllpegparser.enableWithoutPosParser([bool])`: enable default parser with `treeParserWithoutPos*` version. `enableParserWithoutPos(false)` is same to `setDefaultParsers()`
+- `xmllpegparser.setDefaultParsers(parser, parserWithReplacedEntities|bool|nil)`: Return previous parsers. If `parserWithReplacedEntities == true`, then `parserWithReplacedEntities = p`. `nil` value restore the default parser.
 
 ### Document structure (default parser)
 
@@ -119,6 +123,7 @@ Each member is optionnal.
 
 ```lua
 {
+  withPos = bool -- indicates if pos parameter exists in function parameter (except `finish`)
   init = function(...), -- called before parsing, returns the position of the beginning of macth or nil
   finish = function(err, pos, xmlstring), -- called after parsing
   proc = function(pos, name, attrs), -- <?...?>

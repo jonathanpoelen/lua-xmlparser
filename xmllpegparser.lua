@@ -34,7 +34,12 @@ local noop = function()end
 
 local mt = {__call = function(_, ...) return _.parse(...) end}
 
+local addI = function(x) return I * x end
+local ident = function(x) return x end
+
 local _parser = function(v)
+  local mark = (v.withpos and addI or ident)
+
   local Comment = v.comment and CComment / v.comment or Comment
   local Comments = Space0 * (Comment * Space0)^0
 
@@ -43,36 +48,36 @@ local _parser = function(v)
               (Space1 *  Attr)^0                        * Space0
 
   local Preproc = v.proc and
-    (Comments * I * '<?' * CName * Attrs * '?>' / v.proc)^0 or
-    (Comments *     '<?' *  Name * Attrs * '?>'         )^0
+    (Comments * mark('<?') * CName * Attrs * '?>' / v.proc)^0 or
+    (Comments *      '<?'  *  Name * Attrs * '?>'         )^0
 
   local Entities = v.entity and
-    (Comments * Cg(I * CEntity) / v.entity)^0 or
-    (Comments *         Entity            )^0
+    (Comments * Cg(mark(CEntity)) / v.entity)^0 or
+    (Comments *          Entity             )^0
 
   local Doctype = v.doctype and
-    Comments * ('<!DOCTYPE' * Space1 * I * CName * Space1 * C(R'AZ'^1) * Space1 * CString * Space0 * (P'>' + '[' * Entities * Comments * ']>') / v.doctype)^-1 or
-    Comments * ('<!DOCTYPE' * Space1 *      Name * Space1 *  (R'AZ'^1) * Space1 *  String * Space0 * (P'>' + '[' * Entities * Comments * ']>')            )^-1
+    Comments * ('<!DOCTYPE' * Space1 * mark(CName) * Space1 * C(R'AZ'^1) * Space1 * CString * Space0 * (P'>' + '[' * Entities * Comments * ']>') / v.doctype)^-1 or
+    Comments * ('<!DOCTYPE' * Space1 *       Name  * Space1 *  (R'AZ'^1) * Space1 *  String * Space0 * (P'>' + '[' * Entities * Comments * ']>')            )^-1
 
   local Tag = v.tag and
-    '<' * I * CName * Attrs / v.tag or
-    '<' *      Name * Attrs
+    '<' * mark(CName) * Attrs / v.tag or
+    '<' *       Name  * Attrs
 
   local Open = v.open and
     P'>' / v.open + '/>' or
     P'>'          + '/>'
 
   local Close = v.close and
-    '</' * I * CName / v.close * Space0 * '>' or
-    '</' *      Name           * Space0 * '>'
+    '</' * mark(CName) / v.close * Space0 * '>' or
+    '</' *       Name            * Space0 * '>'
 
   local Text = v.text and
-    I * C((Space0 * (1-S" \n\t<")^1)^1) / v.text or
-         ((Space0 * (1-S" \n\t<")^1)^1)
+    mark(C((Space0 * (1-S" \n\t<")^1)^1)) / v.text or
+          ((Space0 * (1-S" \n\t<")^1)^1)
 
   local Cdata = (v.cdata or v.text) and
-    '<![CDATA[' * I * C((1 - P']]>')^0) * ']]>' / (v.cdata or v.text) or
-    '<![CDATA[' *      ((1 - P']]>')^0) * ']]>'
+    '<![CDATA[' * mark(C((1 - P']]>')^0) * ']]>') / (v.cdata or v.text) or
+    '<![CDATA[' *       ((1 - P']]>')^0) * ']]>'
 
   local G = Preproc * Doctype * (Space0 * (Tag * Open + Close + Comment + Cdata + Text))^0 * Space0 * I
 
@@ -133,7 +138,7 @@ function createEntityTable(docEntities, resultEntities)
 end
 
 
-function mkVisitor(evalEntities, defaultEntities)
+function mkVisitor(evalEntities, defaultEntities, withoutPosition)
   local elem, doc, SubEntity, accuattr, doctype, cdata, text
   local mkDefaultEntities = defaultEntities and (
     type(defaultEntities) == 'table' and function()
@@ -151,32 +156,49 @@ function mkVisitor(evalEntities, defaultEntities)
       a[k] = SubEntity:match(v)
       return a
     end
-    doctype = function(pos, name, cat, path)
+
+    doctype = withoutPosition and function(name, cat, path)
+      doc.tentities = createEntityTable(doc.entities, mkDefaultEntities())
+      SubEntity = mkReplaceEntities(doc.tentities)
+    end or function(pos, name, cat, path)
       doc.tentities = createEntityTable(doc.entities, mkDefaultEntities())
       SubEntity = mkReplaceEntities(doc.tentities)
     end
-    cdata = function(pos, text)
-      elem.children[#elem.children+1] = {pos=pos-9, parent=elem, text=SubEntity:match(text), cdata=true}
+
+    cdata = withoutPosition and function(text)
+      elem.children[#elem.children+1] = {parent=elem, text=SubEntity:match(text), cdata=true}
+    end or function(text)
+      elem.children[#elem.children+1] = {parent=elem, text=SubEntity:match(text), cdata=true, pos=pos-9}
     end
-    text = function(pos, text)
-      elem.children[#elem.children+1] = {pos=pos, parent=elem, text=SubEntity:match(text)}
+
+    text = withoutPosition and function(text)
+      elem.children[#elem.children+1] = {parent=elem, text=SubEntity:match(text)}
+    end or function(pos, text)
+      elem.children[#elem.children+1] = {parent=elem, text=SubEntity:match(text), pos=pos}
     end
   else
     -- accuattr = noop
     -- doctype = noop
-    cdata = function(pos, text)
-      elem.children[#elem.children+1] = {pos=pos-9, parent=elem, text=text, cdata=true}
+    cdata = withoutPosition and function(text)
+      elem.children[#elem.children+1] = {parent=elem, text=text, cdata=true}
+    end or function(pos, text)
+      elem.children[#elem.children+1] = {parent=elem, text=text, cdata=true, pos=pos-9}
     end
-    text = function(pos, text)
-      elem.children[#elem.children+1] = {pos=pos, parent=elem, text=text}
+
+    text = withoutPosition and function(text)
+      elem.children[#elem.children+1] = {parent=elem, text=text}
+    end or function(pos, text)
+      elem.children[#elem.children+1] = {parent=elem, text=text, pos=pos}
     end
   end
 
   return {
+    withpos=not withoutPosition,
     accuattr=accuattr,
     doctype=doctype,
     cdata=cdata,
     text=text,
+
     init=function()
       elem = {children={}, bad={children={}}};
       doc = {preprocessor={}, entities={}, document=elem}
@@ -186,6 +208,7 @@ function mkVisitor(evalEntities, defaultEntities)
         SubEntity = mkReplaceEntities(mkDefaultEntities())
       end
     end,
+
     finish=function(err, pos)
       if doc.document ~= elem then
         err = (err and err .. ' ' or '') .. 'No matching close for ' .. tostring(elem.tag) .. ' at position ' .. tostring(elem.pos)
@@ -207,18 +230,29 @@ function mkVisitor(evalEntities, defaultEntities)
       end
       return doc, err
     end,
-    proc=function(pos, name, attrs)
+
+    proc=withoutPosition and function(name, attrs)
+      doc.preprocessor[#doc.preprocessor+1] = {tag=name, attrs=attrs}
+    end or function(pos, name, attrs)
       doc.preprocessor[#doc.preprocessor+1] = {tag=name, attrs=attrs, pos=pos}
     end,
-    entity=function(pos, k, v)
+
+    entity=withoutPosition and function(k, v)
+      doc.entities[#doc.entities+1] = {name=k, value=v}
+    end or function(pos, k, v)
       doc.entities[#doc.entities+1] = {name=k, value=v, pos=pos}
     end,
-    tag=function(pos, name, attrs)
-      elem.children[#elem.children+1] = {tag=name, attrs=attrs, pos=pos-1, parent=elem, children={}}
+
+    tag=withoutPosition and function(name, attrs)
+      elem.children[#elem.children+1] = {tag=name, attrs=attrs, parent=elem, children={}}
+    end or function(pos, name, attrs)
+      elem.children[#elem.children+1] = {tag=name, attrs=attrs, parent=elem, children={}, pos=pos-1}
     end,
+
     open=function()
       elem = elem.children[#elem.children]
     end,
+
     close=function()
       elem = elem.parent
     end,
@@ -233,10 +267,35 @@ end
 
 treeParser = lazyParser(function() return mkVisitor() end)
 treeParserWithReplacedEntities = lazyParser(function() return mkVisitor(true) end)
+treeParserWithoutPos = lazyParser(function() return mkVisitor(nil,nil,true) end)
+treeParserWithoutPosWithReplacedEntities = lazyParser(function() return mkVisitor(true,nil,true) end)
+
+local _defaultParser, _defaultParserWithReplacedEntities = treeParser, treeParserWithReplacedEntities
+
+function enableWithoutPosParser(b)
+  if b == nil or b == true then
+    _defaultParser, _defaultParserWithReplacedEntities = treeParserWithoutPos, treeParserWithoutPosWithReplacedEntities
+  else
+    _defaultParser, _defaultParserWithReplacedEntities = treeParser, treeParserWithReplacedEntities
+  end
+end
+
+function setDefaultParsers(p, pWithReplacedEntities)
+  local r1, r2 = _defaultParser, _defaultParserWithReplacedEntities
+  _defaultParser = p or treeParser
+  if pWithReplacedEntities == true then
+    _defaultParserWithReplacedEntities = _defaultParser
+  elseif pWithReplacedEntities == false then
+    _defaultParserWithReplacedEntities = treeParserWithReplacedEntities
+  else
+    _defaultParserWithReplacedEntities = pWithReplacedEntities or treeParserWithReplacedEntities or _defaultParser
+  end
+  return r1, r2
+end
 
 local getParser = function(visitorOrEvalEntities)
-  return (not visitorOrEvalEntities and treeParser) or
-         (visitorOrEvalEntities == true and treeParserWithReplacedEntities) or
+  return (not visitorOrEvalEntities and _defaultParser) or
+         (visitorOrEvalEntities == true and _defaultParserWithReplacedEntities) or
          parser(visitorOrEvalEntities)
 end
 
