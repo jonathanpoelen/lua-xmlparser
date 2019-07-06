@@ -11,7 +11,7 @@ local Cs = lpeg.Cs
 local P = lpeg.P
 local I = lpeg.Cp()
 
-local setmetatable, string, pairs, tostring, io, type = setmetatable, string, pairs, tostring, io, type
+local setmetatable, string, pairs, tostring, io, type, rawset = setmetatable, string, pairs, tostring, io, type, rawset
 -- local print = print
 
 module "xmllpegparser"
@@ -32,11 +32,6 @@ local CEntity = Cg('<!ENTITY' * Space1 * CName * Space1 * CString * Space0 * '>'
 
 local noop = function()end
 
-local accuAttr = function(a,k,v)
-  a[k] = v
-  return a
-end
-
 local mt = {__call = function(_, ...) return _.parse(...) end}
 
 local _parser = function(v)
@@ -44,8 +39,8 @@ local _parser = function(v)
   local Comments = Space0 * (Comment * Space0)^0
 
   local Attrs = (v.accuattr or (v.tag and v.accuattr ~= false)) and
-    Cf(Ct'' * (Space1 * CAttr)^0, v.accuattr or accuAttr) * Space0 or
-              (Space1 *  Attr)^0                          * Space0
+    Cf(Ct'' * (Space1 * CAttr)^0, v.accuattr or rawset) * Space0 or
+              (Space1 *  Attr)^0                        * Space0
 
   local Preproc = v.proc and
     (Comments * I * '<?' * CName * Attrs * '?>' / v.proc)^0 or
@@ -84,19 +79,15 @@ local _parser = function(v)
   local init, finish = (v.init or noop), (v.finish or noop)
 
   return function(s, ...)
-    init(...)
-    local pos = G:match(s)
-    local err = nil
+    local err
+    local pos = init(...)
+    pos = G:match(s, pos)
     if #s >= pos then
       err = 'parse error at position ' .. tostring(pos)
     end
 
-    local doc, verr = finish(err)
-    if not verr and err then
-      verr = err
-    end
-
-    return doc, verr
+    local doc, verr = finish(err, pos, s)
+    return doc, (verr == nil and err or verr)
   end
 end
 
@@ -195,7 +186,7 @@ function mkVisitor(evalEntities, defaultEntities)
         SubEntity = mkReplaceEntities(mkDefaultEntities())
       end
     end,
-    finish=function(err)
+    finish=function(err, pos)
       if doc.document ~= elem then
         err = (err and err .. ' ' or '') .. 'No matching close for ' .. tostring(elem.tag) .. ' at position ' .. tostring(elem.pos)
       end
@@ -209,6 +200,10 @@ function mkVisitor(evalEntities, defaultEntities)
         doc.bad = nil
       else
         err = (err and err .. ' ' or '') .. 'No matching open for ' .. tostring(doc.bad.children[1].tag) .. ' at position ' .. tostring(doc.bad.children[1].pos)
+      end
+      doc.lastpos = pos
+      if err then
+        doc.error = err
       end
       return doc, err
     end,

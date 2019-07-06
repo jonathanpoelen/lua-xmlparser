@@ -81,7 +81,7 @@ document = {
 
 ## xmllpegparser API
 
-- `xmllpegparser.parse(xmlstring[, visitorOrsubEntities[, visitorInitArgs...]])`: Return a tuple `document table, string error` (see below).
+- `xmllpegparser.parse(xmlstring[, visitorOrsubEntities[, visitorInitArgs...]])`: Return a tuple `document table, (string error or nil)` (see `visitor.finish`).
 If `subEntities` is `true`, the entities are replaced and a `tentity` member is added to the document `table`.
 - `xmllpegparser.parseFile(filename[, visitorOrsubEntities[, visitorInitArgs...]])`: Return a tuple `document table, error file or error document`.
 - `xmllpegparser.defaultEntitiyTable()`: Return the default entity table (` { quot='"', ... }`).
@@ -106,6 +106,8 @@ document = {
   },
   bad = { children={ ... } } -- if the number of closed nodes is greater than the open nodes. parent always refers to bad
   preprocessor = { { pos=integer, tag=string, attrs={ { name=string, value=string }, ... } },
+  error = string, -- if error
+  lastpos = numeric, -- last known position of parse()
   entities = { { pos=integer, name=string, value=string }, ... },
   tentities = { name=value, ... } -- only if subEntities = true
 }
@@ -117,12 +119,12 @@ Each member is optionnal.
 
 ```lua
 {
-  init = function(...), -- called before parsing
-  finish = function(err), -- called after parsing
+  init = function(...), -- called before parsing, returns the position of the beginning of macth or nil
+  finish = function(err, pos, xmlstring), -- called after parsing
   proc = function(pos, name, attrs), -- <?...?>
   entity = function(pos, name, value),
   doctype = function(pos, name, cat, path), -- called after all addEntity
-  accuattr = function(table, name, value), -- `table` is an accumulator that will be transmitted to tag.attrs.
+  accuattr = function(table, name, value), -- `table` is an accumulator that will be transmitted to tag.attrs. Set to `false` for disable this function.
                                            -- If `nil` and `tag` is `not nil`, a default accumalator is used.
                                            -- If `false`, the accumulator is disabled.
                                            -- (`tag(pos, name, accuattr(accuattr({}, attr1, value1), attr2, value2)`)

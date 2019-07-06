@@ -36,5 +36,5 @@ local doc, err = parseFile(filename, replaceEntities)
 
 printdoc(doc)
 if err then
-  print(err)
+  io.stderr:write(err .. '\n')
 end
