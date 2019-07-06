@@ -1,6 +1,6 @@
 -- from https://github.com/jonathanpoelen/xmlparser
 
-local io, string, print, pairs = io, string, print, pairs
+local io, string, pairs = io, string, pairs
 
 module "xmlparser"
 
@@ -91,8 +91,8 @@ function parse(s, evalEntities)
 end
 
 function parseFile(filename, evalEntities)
-  local f, err = io.open(filename, evalEntities)
-  return f and parse(f:read'*a'), err
+  local f, err = io.open(filename)
+  return f and parse(f:read'*a', evalEntities), err
 end
 
 function defaultEntityTable()
