@@ -5,9 +5,9 @@ source = {
   tag = "v2.0.5"
 }
 description = {
-  summary = "An Fast XML Parser written entirely in Lua 5.",
+  summary = "Fast XML parser written entirely in Lua 5.",
   detailed = [[
-    Enables parsing an XML file and converting it to a Lua table,
+    Enables parsing a XML file and converting it to a Lua table,
     which can be handled directly by your application.
   ]],
   homepage = "https://github.com/jonathanpoelen/lua-xmlparser",
