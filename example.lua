@@ -5,8 +5,12 @@ function printelem(e, prefix)
   if e.tag then
     print(prefix .. '<' .. e.tag .. '>')
     prefix = '  ' .. prefix
-    for name, value in pairs(e.attrs) do
-      print(prefix .. '@' .. name .. ': ' .. value)
+    -- ordered value a attrs is unspecified
+    -- for name, value in pairs(e.attrs) do
+    --  print(prefix .. '@' .. name .. ': ' .. value)
+    --end
+    for _,attr in ipairs(e.orderedattrs) do
+      print(prefix .. '@' .. attr.name .. ': ' .. attr.value)
     end
     for i, child in pairs(e.children) do
       printelem(child, prefix)

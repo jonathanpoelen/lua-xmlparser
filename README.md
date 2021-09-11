@@ -28,9 +28,8 @@ luarocks make --local xmlparser-2.0-5.rockspec
 
 Run `./example.lua`.
 
-```
-./example.lua [xmlfile [replaceentities]`
-
+```sh
+./example.lua [xmlfile [replaceentities]]
 ```
 
 `replaceentities` = anything, only to enable replacement of entities.
@@ -51,7 +50,7 @@ If `subEntities` is `true`, the entities are replaced and a `tentity` member is 
 ```lua
 document = {
   children = {
-    { text=string } or { tag=string, attrs={ { name=string, value=string }, ... }, children={ ... } },
+    { text=string } or { tag=string, attrs={ [name]=value ... }, orderedattrs={ { name=string, value=string }, ... }, children={ ... } },
     ...
   },
   entities = { { name=string, value=string }, ... },
@@ -68,7 +67,6 @@ document = {
 - Fails to detect any errors
 - Ignore processing instructions
 - Ignore DOCTYPE, parse only ENTITY
-- If several attributes have the same name (allowed by the standard), only the last is kept.
 
 
 ## Licence

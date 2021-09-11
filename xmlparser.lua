@@ -2,17 +2,13 @@
 
 local io, string, pairs = io, string, pairs
 
-module "xmlparser"
-
 -- http://lua-users.org/wiki/StringTrim
 local trim = function(s)
   local from = s:match"^%s*()"
   return from > #s and "" or s:match(".*%S", from)
 end
 
-local gtchar = string.byte('>', 1)
 local slashchar = string.byte('/', 1)
-local D = string.byte('D', 1)
 local E = string.byte('E', 1)
 
 function parse(s, evalEntities)
@@ -44,12 +40,13 @@ function parse(s, evalEntities)
   s:gsub('<([?!/]?)([-:_%w]+)%s*(/?>?)([^<]*)', function(type, name, closed, txt)
     -- open
     if #type == 0 then
-      local a = {}
+      local attrs, orderedattrs = {}, {}
       if #closed == 0 then
         local len = 0
         for all,aname,_,value,starttxt in string.gmatch(txt, "(.-([-_%w]+)%s*=%s*(.)(.-)%3%s*(/?>?))") do
           len = len + #all
-          a[aname] = value
+          attrs[aname] = value
+          orderedattrs[#orderedattrs+1] = {name=aname, value=value}
           if #starttxt ~= 0 then
             txt = txt:sub(len+1)
             closed = starttxt
@@ -57,7 +54,7 @@ function parse(s, evalEntities)
           end
         end
       end
-      t[#t+1] = {tag=name, attrs=a, children={}}
+      t[#t+1] = {tag=name, attrs=attrs, children={}, orderedattrs=orderedattrs}
 
       if closed:byte(1) ~= slashchar then
         l[#l+1] = t
@@ -111,3 +108,11 @@ function createEntityTable(docEntities, resultEntities)
   end
   return entities
 end
+
+return {
+  parse = parse,
+  parseFile = parseFile,
+  defaultEntityTable = defaultEntityTable,
+  replaceEntities = replaceEntities,
+  createEntityTable = createEntityTable,
+}
