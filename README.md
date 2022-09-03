@@ -17,11 +17,11 @@ This implementation is limited. For an even faster parser with more functionalit
 ## Installation
 
 ```bash
-luarocks install --local https://raw.githubusercontent.com/jonathanpoelen/lua-xmlparser/master/xmlparser-2.2-0.rockspec
+luarocks install --local https://raw.githubusercontent.com/jonathanpoelen/lua-xmlparser/master/xmlparser-2.2-1.rockspec
 
 # Or in your local lua-xmlparser directory
 
-luarocks make --local xmlparser-2.2-0.rockspec
+luarocks make --local xmlparser-2.2-1.rockspec
 ```
 
 ## Test
