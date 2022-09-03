@@ -1,8 +1,11 @@
 # lua-xmlparser
 
-`xmlparser` is a fast XML parser written entirely in Lua 5.
+`xmlparser` is a XML parser written entirely in Lua 5.
 
-This implementation is limited. For an even faster parser with more functionality, look at [lua-xmllpegparser](https://github.com/jonathanpoelen/lua-xmllpegparser).
+This implementation is limited and extracts only valid entities, attributes and tags (without CDATA).
+
+For a faster parser with more features, look at [lua-xmllpegparser](https://github.com/jonathanpoelen/lua-xmllpegparser).
+
 
 <!-- summary -->
 1. [Installation](#installation)
