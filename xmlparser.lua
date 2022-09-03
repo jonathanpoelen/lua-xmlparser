@@ -11,7 +11,24 @@ end
 local slashchar = string.byte('/', 1)
 local E = string.byte('E', 1)
 
-function parse(s, evalEntities)
+local function defaultEntityTable()
+  return { quot='"', apos='\'', lt='<', gt='>', amp='&', tab='\t', nbsp=' ', }
+end
+
+local function replaceEntities(s, entities)
+  return s:gsub('&([^;]+);', entities)
+end
+
+local function createEntityTable(docEntities, resultEntities)
+  entities = resultEntities or defaultEntityTable()
+  for _,e in pairs(docEntities) do
+    e.value = replaceEntities(e.value, entities)
+    entities[e.name] = e.value
+  end
+  return entities
+end
+
+local function parse(s, evalEntities)
   -- remove comments
   s = s:gsub('<!%-%-(.-)%-%->', '')
 
@@ -87,26 +104,9 @@ function parse(s, evalEntities)
   return {children=t, entities=entities, tentities=tentities}
 end
 
-function parseFile(filename, evalEntities)
+local function parseFile(filename, evalEntities)
   local f, err = io.open(filename)
   return f and parse(f:read'*a', evalEntities), err
-end
-
-function defaultEntityTable()
-  return { quot='"', apos='\'', lt='<', gt='>', amp='&', tab='\t', nbsp=' ', }
-end
-
-function replaceEntities(s, entities)
-  return s:gsub('&([^;]+);', entities)
-end
-
-function createEntityTable(docEntities, resultEntities)
-  entities = resultEntities or defaultEntityTable()
-  for _,e in pairs(docEntities) do
-    e.value = replaceEntities(e.value, entities)
-    entities[e.name] = e.value
-  end
-  return entities
 end
 
 return {

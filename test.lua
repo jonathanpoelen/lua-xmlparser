@@ -57,4 +57,8 @@ eq('{children:{1:{attrs:{},children:{1:{text:fdd>ddsa;,},},orderedattrs:{},tag:a
 feq('{children:{1:{attrs:{},children:{1:{attrs:{attribute:&entity1;,},children:{1:{text:something,},},orderedattrs:{1:{name:attribute,value:&entity1;,},},tag:lvl1,},2:{text:blah blah,},3:{attrs:{attr3:value3,attribute:value,otherattribute:value2,},children:{},orderedattrs:{1:{name:attribute,value:value,},2:{name:otherattribute,value:value2,},3:{name:attr3,value:value3,},},tag:lvl1,},4:{attrs:{},children:{1:{attrs:{},children:{1:{text:something,},},orderedattrs:{},tag:lvl2,},},orderedattrs:{},tag:other,},},orderedattrs:{},tag:xml,},},entities:{1:{name:entity1,value:something,},2:{name:entity2,value:test,},},}',
    'example.xml')
 
-os.exit(r)
+if r == 0 then
+  print('Ok')
+else
+  os.exit(r)
+end
