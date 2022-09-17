@@ -40,8 +40,8 @@ Run `./example.lua`.
 
 ## xmlparser API
 
-- `xmlparser.parse(xmlstring[, subEntities])`: Return a document `table` (see below).
-If `subEntities` is `true`, the entities are replaced and a `tentity` member is added to the document `table`.
+- `xmlparser.parse(xmlstring[, evalEntities])`: Return a document `table` (see below).
+If `evalEntities` is `true`, the entities are replaced and a `tentity` member is added to the document `table`.
 - `xmlparser.parseFile(filename[, subEntities])`: Return a tuple `document table, error file`.
 - `xmlparser.defaultEntitiyTable()`: Return the default entity table (` { quot='"', ... }`).
 - `xmlparser.createEntityTable(docEntities[, resultEntities])`: Create an entity table from the document entity table. Return `resultEntities`.
@@ -53,11 +53,16 @@ If `subEntities` is `true`, the entities are replaced and a `tentity` member is 
 ```lua
 document = {
   children = {
-    { text=string } or { tag=string, attrs={ [name]=value ... }, orderedattrs={ { name=string, value=string }, ... }, children={ ... } },
+    { text=string } or
+    { tag=string,
+      attrs={ [name]=value ... },
+      orderedattrs={ { name=string, value=string }, ... },
+      children={ ... }
+    },
     ...
   },
   entities = { { name=string, value=string }, ... },
-  tentities = { name=value, ... } -- only if subEntities = true
+  tentities = { name=value, ... } -- only if evalEntities = true
 }
 ```
 

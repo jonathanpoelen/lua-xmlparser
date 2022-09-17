@@ -11,14 +11,25 @@ end
 local slashchar = string.byte('/', 1)
 local E = string.byte('E', 1)
 
+--! Return the default entity table.
+--! @return table
 local function defaultEntityTable()
   return { quot='"', apos='\'', lt='<', gt='>', amp='&', tab='\t', nbsp=' ', }
 end
 
+--! @param[in] s string
+--! @param[in] entities table : with entity name as key and value as replacement
+--! @return string
 local function replaceEntities(s, entities)
   return s:gsub('&([^;]+);', entities)
 end
 
+--! Add entities to resultEntities then return it.
+--! Create new table when resultEntities is nul.
+--! Create an entity table from the document entity table.
+--! @param[in] docEntities table
+--! @param[in,out] resultEntities table|nil
+--! @return table
 local function createEntityTable(docEntities, resultEntities)
   entities = resultEntities or defaultEntityTable()
   for _,e in pairs(docEntities) do
@@ -28,6 +39,27 @@ local function createEntityTable(docEntities, resultEntities)
   return entities
 end
 
+--! Return a document `table`.
+--! @code
+--!   document = {
+--!     children = {
+--!       { text=string } or
+--!       { tag=string,
+--!         attrs={ [name]=value ... },
+--!         orderedattrs={ { name=string, value=string }, ... },
+--!         children={ ... }
+--!       },
+--!       ...
+--!     },
+--!     entities = { { name=string, value=string }, ... },
+--!     tentities = { name=value, ... } -- only if evalEntities = true
+--!   }
+--! @endcode
+--! If `evalEntities` is `true`, the entities are replaced and
+--! a `tentity` member is added to the document `table`.
+--! @param[in] s string : xml data
+--! @param[in] evalEntities boolean
+--! @return table
 local function parse(s, evalEntities)
   -- remove comments
   s = s:gsub('<!%-%-(.-)%-%->', '')
@@ -104,6 +136,10 @@ local function parse(s, evalEntities)
   return {children=t, entities=entities, tentities=tentities}
 end
 
+-- Return a tuple `document table, error file`.
+-- @param filename[in] string
+-- @param evalEntities[in] boolean : see \c parse()
+-- @return table : see parse
 local function parseFile(filename, evalEntities)
   local f, err = io.open(filename)
   if f then
