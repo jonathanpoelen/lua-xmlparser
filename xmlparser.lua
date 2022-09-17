@@ -106,7 +106,12 @@ end
 
 local function parseFile(filename, evalEntities)
   local f, err = io.open(filename)
-  return f and parse(f:read'*a', evalEntities), err
+  if f then
+    local content = f:read'*a'
+    f:close()
+    return parse(content, evalEntities), nil
+  end
+  return f, err
 end
 
 return {
