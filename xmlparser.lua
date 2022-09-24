@@ -1,4 +1,4 @@
--- from https://github.com/jonathanpoelen/xmlparser
+-- from https://github.com/jonathanpoelen/lua-xmlparser
 
 local io, string, pairs = io, string, pairs
 
