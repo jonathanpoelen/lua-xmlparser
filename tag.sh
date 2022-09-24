@@ -2,7 +2,7 @@
 
 set -e
 
-if [ $# -lt 3 ] ; then
+if (( $# < 3 )) ; then
   echo "$0 major minor revision" >&2
   exit 1
 fi
