@@ -2,12 +2,6 @@
 
 local io, string, pairs = io, string, pairs
 
--- http://lua-users.org/wiki/StringTrim
-local trim = function(s)
-  local from = s:match"^%s*()"
-  return from > #s and "" or s:match(".*%S", from)
-end
-
 local slashchar = string.byte('/', 1)
 local E = string.byte('E', 1)
 
@@ -31,7 +25,7 @@ end
 --! @param[in,out] resultEntities table|nil
 --! @return table
 local function createEntityTable(docEntities, resultEntities)
-  entities = resultEntities or defaultEntityTable()
+  local entities = resultEntities or defaultEntityTable()
   for _,e in pairs(docEntities) do
     e.value = replaceEntities(e.value, entities)
     entities[e.name] = e.value
@@ -65,11 +59,11 @@ local function parse(s, evalEntities)
   s = s:gsub('<!%-%-(.-)%-%->', '')
 
   local entities, tentities = {}
-  
+
   if evalEntities then
     local pos = s:find('<[_%w]')
     if pos then
-      s:sub(1, pos):gsub('<!ENTITY%s+([_%w]+)%s+(.)(.-)%2', function(name, q, entity)
+      s:sub(1, pos):gsub('<!ENTITY%s+([_%w]+)%s+(.)(.-)%2', function(name, _, entity)
         entities[#entities+1] = {name=name, value=entity}
       end)
       tentities = createEntityTable(entities)
@@ -83,9 +77,9 @@ local function parse(s, evalEntities)
     txt = txt:match'^%s*(.*%S)' or ''
     if #txt ~= 0 then
       t[#t+1] = {text=txt}
-    end    
+    end
   end
-  
+
   s:gsub('<([?!/]?)([-:_%w]+)%s*(/?>?)([^<]*)', function(type, name, closed, txt)
     -- open
     if #type == 0 then
@@ -120,7 +114,7 @@ local function parse(s, evalEntities)
     -- ENTITY
     elseif '!' == type then
       if E == name:byte(1) then
-        txt:gsub('([_%w]+)%s+(.)(.-)%2', function(name, q, entity)
+        txt:gsub('([_%w]+)%s+(.)(.-)%2', function(name, _, entity)
           entities[#entities+1] = {name=name, value=entity}
         end, 1)
       end
