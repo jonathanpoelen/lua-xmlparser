@@ -20,11 +20,11 @@ For a faster parser with more features, look at [lua-xmllpegparser](https://gith
 ## Installation
 
 ```bash
-luarocks install --local https://raw.githubusercontent.com/jonathanpoelen/lua-xmlparser/master/xmlparser-2.2-2.rockspec
+luarocks install --local https://raw.githubusercontent.com/jonathanpoelen/lua-xmlparser/master/xmlparser-2.2-3.rockspec
 
 # Or in your local lua-xmlparser directory
 
-luarocks make --local xmlparser-2.2-2.rockspec
+luarocks make --local xmlparser-2.2-3.rockspec
 ```
 
 ## Test
